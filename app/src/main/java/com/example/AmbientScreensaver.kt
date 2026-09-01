@@ -88,7 +88,7 @@ fun AmbientScreensaver(viewModel: MainViewModel) {
             )
     ) {
         CinematicBackground(
-            presetId = viewModel.settingsManager.backgroundPreset,
+            backgroundImageUri = viewModel.settingsManager.backgroundImageUri,
             dimAmount = 0.25f,
             enableParallax = true,
             performanceMode = viewModel.settingsManager.performanceMode,

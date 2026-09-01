@@ -59,12 +59,12 @@ class SettingsManager(context: Context) {
         }
     }
 
-    var backgroundPreset: String
-        get() = prefs.getString("backgroundPreset", "nebula") ?: "nebula"
-        set(value) = prefs.edit().putString("backgroundPreset", value).apply()
+    var backgroundImageUri: String?
+        get() = prefs.getString("backgroundImageUri", null)
+        set(value) = prefs.edit().putString("backgroundImageUri", value).apply()
 
     var backgroundDimAmount: Float
-        get() = prefs.getFloat("backgroundDimAmount", 0.35f)
+        get() = prefs.getFloat("backgroundDimAmount", 0.15f)
         set(value) = prefs.edit().putFloat("backgroundDimAmount", value).apply()
 
     var showAppLabels: String

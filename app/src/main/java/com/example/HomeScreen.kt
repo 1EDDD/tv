@@ -144,7 +144,7 @@ fun HomeScreen(viewModel: MainViewModel) {
     ) {
         // Dynamic Cinematic Background
         CinematicBackground(
-            presetId = viewModel.settingsManager.backgroundPreset,
+            backgroundImageUri = viewModel.settingsManager.backgroundImageUri,
             dimAmount = viewModel.settingsManager.backgroundDimAmount,
             enableParallax = viewModel.settingsManager.enableParallax,
             performanceMode = viewModel.settingsManager.performanceMode,
@@ -259,56 +259,14 @@ fun TopStatusBar(
     }
 
     val timeString = SimpleDateFormat("h:mm a", Locale.getDefault()).format(Date(currentTime))
-    val dateString = SimpleDateFormat("EEE, MMM d", Locale.getDefault()).format(Date(currentTime))
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 48.dp, vertical = 24.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
+        horizontalArrangement = Arrangement.End,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Left: Quick Action Icons (Search, Reorder, Settings)
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(14.dp)
-        ) {
-            TVTopBarButton(
-                icon = Icons.Default.Search,
-                label = "Search",
-                onClick = {
-                    onUserAction()
-                    viewModel.navigateTo(Screen.SEARCH)
-                }
-            )
-
-            TVTopBarButton(
-                icon = Icons.Default.SwapHoriz,
-                label = "Reorder",
-                onClick = {
-                    onUserAction()
-                    viewModel.navigateTo(Screen.REORDER_FAVORITES)
-                }
-            )
-
-            TVTopBarButton(
-                icon = Icons.Default.Settings,
-                label = "Settings",
-                onClick = {
-                    onUserAction()
-                    viewModel.navigateTo(Screen.SETTINGS)
-                }
-            )
-
-            if (!isDefaultHome) {
-                SetDefaultLauncherPill(onClick = {
-                    onUserAction()
-                    viewModel.openHomeSettings()
-                })
-            }
-        }
-
-        // Right: Clock & Network Status
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -316,24 +274,15 @@ fun TopStatusBar(
             Icon(
                 imageVector = Icons.Default.Wifi,
                 contentDescription = "Wi-Fi Connected",
-                tint = Color.White.copy(alpha = 0.75f),
-                modifier = Modifier.size(20.dp)
+                tint = Color.White.copy(alpha = 0.5f),
+                modifier = Modifier.size(18.dp)
             )
-
-            if (viewModel.settingsManager.dateVisible) {
-                Text(
-                    text = dateString,
-                    color = Color.White.copy(alpha = 0.65f),
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Light
-                )
-            }
 
             if (viewModel.settingsManager.clockVisible) {
                 Text(
                     text = timeString,
-                    color = Color.White,
-                    fontSize = 20.sp,
+                    color = Color.White.copy(alpha = 0.8f),
+                    fontSize = 16.sp,
                     fontWeight = FontWeight.Medium
                 )
             }
@@ -477,14 +426,24 @@ fun ShelfSection(
         else -> 180
     }
 
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Text(
-            text = title,
-            color = Color.White.copy(alpha = 0.75f),
-            fontSize = if (isFavorites) 19.sp else 16.sp,
-            fontWeight = if (isFavorites) FontWeight.SemiBold else FontWeight.Medium,
-            modifier = Modifier.padding(start = 52.dp, bottom = 12.dp)
-        )
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .then(
+                if (isFavorites) Modifier.background(Color.Black.copy(alpha = 0.35f))
+                else Modifier
+            )
+            .padding(vertical = if (isFavorites) 24.dp else 0.dp)
+    ) {
+        if (!isFavorites) {
+            Text(
+                text = title,
+                color = Color.White.copy(alpha = 0.75f),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier.padding(start = 52.dp, bottom = 12.dp)
+            )
+        }
 
         LazyRow(
             contentPadding = PaddingValues(horizontal = 48.dp),
@@ -551,9 +510,9 @@ fun AppCardItem(
         label = "app_card_scale"
     )
 
-    val cardWidth = if (isCompact) 120.dp else 145.dp
-    val cardHeight = if (isCompact) 120.dp else 145.dp
-    val iconSize = if (isCompact) 68.dp else 84.dp
+    val cardWidth = if (isCompact) 180.dp else 220.dp
+    val cardHeight = if (isCompact) 101.dp else 124.dp
+    val iconSize = if (isCompact) 56.dp else 72.dp
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -677,8 +636,8 @@ fun SystemTileItem(
 ) {
     var isFocused by remember { mutableStateOf(false) }
 
-    val cardWidth = if (isCompact) 120.dp else 145.dp
-    val cardHeight = if (isCompact) 120.dp else 145.dp
+    val cardWidth = if (isCompact) 180.dp else 220.dp
+    val cardHeight = if (isCompact) 101.dp else 124.dp
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,

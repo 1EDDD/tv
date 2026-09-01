@@ -70,7 +70,7 @@ fun ReorderFavoritesScreen(viewModel: MainViewModel) {
 
     Box(modifier = Modifier.fillMaxSize()) {
         CinematicBackground(
-            presetId = viewModel.settingsManager.backgroundPreset,
+            backgroundImageUri = viewModel.settingsManager.backgroundImageUri,
             dimAmount = 0.65f,
             enableParallax = false,
             performanceMode = viewModel.settingsManager.performanceMode
@@ -229,7 +229,7 @@ fun ReorderAppCard(
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
-            .width(140.dp)
+            .width(220.dp)
             .scale(scale)
     ) {
         // Move indicators
@@ -264,7 +264,7 @@ fun ReorderAppCard(
             colors = CardDefaults.cardColors(containerColor = Color.Transparent),
             elevation = CardDefaults.cardElevation(defaultElevation = if (isFocused) 14.dp else 2.dp),
             modifier = Modifier
-                .size(130.dp)
+                .size(220.dp, 124.dp)
                 .border(
                     width = if (isFocused) 2.5.dp else 1.dp,
                     color = if (isFocused) Color.Cyan.copy(alpha = 0.9f) else Color.White.copy(alpha = 0.15f),

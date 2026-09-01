@@ -79,7 +79,7 @@ fun SearchScreen(viewModel: MainViewModel) {
 
     Box(modifier = Modifier.fillMaxSize()) {
         CinematicBackground(
-            presetId = viewModel.settingsManager.backgroundPreset,
+            backgroundImageUri = viewModel.settingsManager.backgroundImageUri,
             dimAmount = 0.55f,
             enableParallax = false,
             performanceMode = viewModel.settingsManager.performanceMode

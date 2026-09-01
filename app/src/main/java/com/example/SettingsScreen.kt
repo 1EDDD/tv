@@ -86,7 +86,7 @@ fun SettingsScreen(viewModel: MainViewModel) {
 
     Box(modifier = Modifier.fillMaxSize()) {
         CinematicBackground(
-            presetId = viewModel.settingsManager.backgroundPreset,
+            backgroundImageUri = viewModel.settingsManager.backgroundImageUri,
             dimAmount = 0.70f,
             enableParallax = false,
             performanceMode = viewModel.settingsManager.performanceMode
@@ -345,11 +345,21 @@ fun GeneralSettingsPane(viewModel: MainViewModel, isDefaultHome: Boolean) {
 
 @Composable
 fun AppearanceSettingsPane(viewModel: MainViewModel) {
-    var currentPreset by remember { mutableStateOf(viewModel.settingsManager.backgroundPreset) }
+    var backgroundImageUri by remember { mutableStateOf(viewModel.settingsManager.backgroundImageUri) }
     var dimAmount by remember { mutableStateOf(viewModel.settingsManager.backgroundDimAmount) }
     var enableParallax by remember { mutableStateOf(viewModel.settingsManager.enableParallax) }
     var cardScale by remember { mutableStateOf(viewModel.settingsManager.cardScale) }
     var animSpeed by remember { mutableStateOf(viewModel.settingsManager.animationSpeed) }
+
+    val imagePickerLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
+        contract = androidx.activity.result.contract.ActivityResultContracts.GetContent()
+    ) { uri: android.net.Uri? ->
+        if (uri != null) {
+            val uriString = uri.toString()
+            backgroundImageUri = uriString
+            viewModel.settingsManager.backgroundImageUri = uriString
+        }
+    }
 
     LazyColumn(
         contentPadding = PaddingValues(bottom = 32.dp),
@@ -366,37 +376,30 @@ fun AppearanceSettingsPane(viewModel: MainViewModel) {
             )
         }
 
-        // Preset Wallpaper Carousel
+        // Custom Background Image
         item {
-            Column(modifier = Modifier.fillMaxWidth()) {
-                Text(
-                    text = "Cinematic Ambient Wallpaper",
-                    color = Color.White,
-                    fontSize = 17.sp,
-                    fontWeight = FontWeight.SemiBold
-                )
-                Text(
-                    text = "Select an Apple TV-inspired ambient theme",
-                    color = Color.White.copy(alpha = 0.6f),
-                    fontSize = 13.sp,
-                    modifier = Modifier.padding(bottom = 12.dp)
-                )
-
-                LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(14.dp),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    items(WallpaperPresets.presets) { preset ->
-                        PresetCard(
-                            preset = preset,
-                            isSelected = currentPreset == preset.id,
-                            onSelect = {
-                                currentPreset = preset.id
-                                viewModel.settingsManager.backgroundPreset = preset.id
-                            }
-                        )
-                    }
+            SettingsCardOption(
+                title = "Background Image",
+                subtitle = if (backgroundImageUri != null) "Custom image selected" else "OLED Black",
+                value = if (backgroundImageUri != null) "Change" else "Select",
+                onClick = {
+                    imagePickerLauncher.launch("image/*")
                 }
+            )
+        }
+
+        if (backgroundImageUri != null) {
+            item {
+                SettingsCardAction(
+                    title = "Remove Background",
+                    subtitle = "Reset to pure OLED black",
+                    badge = "RESET",
+                    badgeColor = Color(0xFFF87171),
+                    onClick = {
+                        backgroundImageUri = null
+                        viewModel.settingsManager.backgroundImageUri = null
+                    }
+                )
             }
         }
 
@@ -470,68 +473,7 @@ fun AppearanceSettingsPane(viewModel: MainViewModel) {
     }
 }
 
-@Composable
-fun PresetCard(
-    preset: WallpaperPreset,
-    isSelected: Boolean,
-    onSelect: () -> Unit
-) {
-    var isFocused by remember { mutableStateOf(false) }
-
-    Card(
-        shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
-        modifier = Modifier
-            .size(width = 130.dp, height = 80.dp)
-            .border(
-                width = if (isFocused || isSelected) 2.5.dp else 1.dp,
-                color = when {
-                    isFocused -> Color.White
-                    isSelected -> Color.Cyan
-                    else -> Color.White.copy(alpha = 0.2f)
-                },
-                shape = RoundedCornerShape(14.dp)
-            )
-            .onFocusChanged {
-                isFocused = it.isFocused
-                if (it.isFocused) onSelect()
-            }
-            .focusable(true)
-            .onKeyEvent { keyEvent ->
-                if (keyEvent.type == KeyEventType.KeyUp &&
-                    (keyEvent.key == Key.DirectionCenter || keyEvent.key == Key.Enter)
-                ) {
-                    onSelect()
-                    return@onKeyEvent true
-                }
-                false
-            }
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null,
-                onClick = onSelect
-            )
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    brush = Brush.linearGradient(
-                        colors = listOf(preset.primaryColor, preset.secondaryColor, preset.baseDark)
-                    )
-                )
-                .padding(8.dp),
-            contentAlignment = Alignment.BottomStart
-        ) {
-            Text(
-                text = preset.name,
-                color = Color.White,
-                fontSize = 11.sp,
-                fontWeight = FontWeight.SemiBold
-            )
-        }
-    }
-}
+// PresetCard removed
 
 @Composable
 fun FavoritesSettingsPane(viewModel: MainViewModel) {
