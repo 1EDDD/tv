@@ -87,7 +87,7 @@ import java.util.Locale
 @Composable
 fun HomeScreen(viewModel: MainViewModel) {
     val currentScreen by viewModel.currentScreen.collectAsState()
-    val installedApps by viewModel.installedApps.collectAsState()
+    val installedApps by viewModel.visibleApps.collectAsState()
     val favorites by viewModel.favorites.collectAsState()
     val recentApps by viewModel.recentApps.collectAsState()
     val selectedApp by viewModel.selectedApp.collectAsState()

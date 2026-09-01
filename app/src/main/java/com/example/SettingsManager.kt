@@ -71,6 +71,20 @@ class SettingsManager(context: Context) {
         get() = prefs.getString("showAppLabels", "focused_only") ?: "focused_only"
         set(value) = prefs.edit().putString("showAppLabels", value).apply()
 
+    var hiddenApps: Set<String>
+        get() = prefs.getStringSet("hiddenApps", emptySet()) ?: emptySet()
+        set(value) = prefs.edit().putStringSet("hiddenApps", value).apply()
+
+    fun toggleAppVisibility(packageName: String) {
+        val current = hiddenApps.toMutableSet()
+        if (current.contains(packageName)) {
+            current.remove(packageName)
+        } else {
+            current.add(packageName)
+        }
+        hiddenApps = current
+    }
+
     var clockVisible: Boolean
         get() = prefs.getBoolean("clockVisible", true)
         set(value) = prefs.edit().putBoolean("clockVisible", value).apply()

@@ -64,7 +64,7 @@ import androidx.core.graphics.drawable.toBitmap
 @Composable
 fun SearchScreen(viewModel: MainViewModel) {
     val query by viewModel.searchQuery.collectAsState()
-    val allApps by viewModel.installedApps.collectAsState()
+    val allApps by viewModel.visibleApps.collectAsState()
     val context = LocalContext.current
 
     val filteredApps = remember(query, allApps) {

@@ -22,6 +22,6 @@ dependencyResolutionManagement {
   }
 }
 
-rootProject.name = "TV Launcher"
+rootProject.name = "تخلمهخلبخلبخبتهمبنخفقهتبمبخن"
 
 include(":app")

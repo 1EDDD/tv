@@ -32,6 +32,7 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ColorLens
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Tune
@@ -71,6 +72,7 @@ enum class SettingsTab(val label: String, val icon: ImageVector) {
     GENERAL("General", Icons.Default.Tune),
     APPEARANCE("Appearance", Icons.Default.ColorLens),
     FAVORITES("Favorites", Icons.Default.Star),
+    APPLICATIONS("Applications", Icons.Default.Apps),
     PERFORMANCE("Performance", Icons.Default.Speed),
     ABOUT("About", Icons.Default.Info)
 }
@@ -148,6 +150,7 @@ fun SettingsScreen(viewModel: MainViewModel) {
                     SettingsTab.GENERAL -> GeneralSettingsPane(viewModel, isDefaultHome)
                     SettingsTab.APPEARANCE -> AppearanceSettingsPane(viewModel)
                     SettingsTab.FAVORITES -> FavoritesSettingsPane(viewModel)
+                    SettingsTab.APPLICATIONS -> ApplicationsSettingsPane(viewModel)
                     SettingsTab.PERFORMANCE -> PerformanceSettingsPane(viewModel)
                     SettingsTab.ABOUT -> AboutSettingsPane()
                 }
@@ -585,6 +588,51 @@ fun PerformanceSettingsPane(viewModel: MainViewModel) {
                         lineHeight = 20.sp
                     )
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun ApplicationsSettingsPane(viewModel: MainViewModel) {
+    val installedApps by viewModel.installedApps.collectAsState()
+    val hiddenApps = viewModel.settingsManager.hiddenApps
+
+    Column(modifier = Modifier.fillMaxSize()) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column {
+                Text(
+                    text = "Hide Applications",
+                    color = Color.White,
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = "Select apps to hide from the launcher. They will not be uninstalled.",
+                    color = Color.White.copy(alpha = 0.6f),
+                    fontSize = 14.sp
+                )
+            }
+        }
+
+        LazyColumn(
+            contentPadding = PaddingValues(bottom = 32.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            items(installedApps) { app ->
+                val isHidden = hiddenApps.contains(app.packageName)
+                SettingsCardToggle(
+                    title = app.name,
+                    subtitle = if (isHidden) "Hidden from launcher" else "Visible",
+                    checked = !isHidden,
+                    onToggle = {
+                        viewModel.toggleAppVisibility(app.packageName)
+                    }
+                )
             }
         }
     }

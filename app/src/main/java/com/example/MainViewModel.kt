@@ -32,6 +32,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _installedApps = MutableStateFlow<List<AppInfo>>(emptyList())
     val installedApps: StateFlow<List<AppInfo>> = _installedApps.asStateFlow()
 
+    private val _visibleApps = MutableStateFlow<List<AppInfo>>(emptyList())
+    val visibleApps: StateFlow<List<AppInfo>> = _visibleApps.asStateFlow()
+
     private val _favorites = MutableStateFlow<List<AppInfo>>(emptyList())
     val favorites: StateFlow<List<AppInfo>> = _favorites.asStateFlow()
 
@@ -87,14 +90,24 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             val apps = appManager.getInstalledApps()
             _installedApps.value = apps
 
+            val installedPackages = apps.map { it.packageName }.toSet()
+            val currentHidden = settingsManager.hiddenApps
+            val validHidden = currentHidden.filter { installedPackages.contains(it) }.toSet()
+            if (currentHidden != validHidden) {
+                settingsManager.hiddenApps = validHidden
+            }
+
+            val visibleAppList = apps.filterNot { validHidden.contains(it.packageName) }
+            _visibleApps.value = visibleAppList
+
             // If user has no favorites yet, populate defaults from top apps
-            if (settingsManager.favorites.isEmpty() && apps.isNotEmpty()) {
-                val defaultFavs = apps.take(6).map { it.packageName }
+            if (settingsManager.favorites.isEmpty() && visibleAppList.isNotEmpty()) {
+                val defaultFavs = visibleAppList.take(6).map { it.packageName }
                 settingsManager.favorites = defaultFavs
             }
 
-            updateFavorites(apps)
-            updateRecentApps(apps)
+            updateFavorites(visibleAppList)
+            updateRecentApps(visibleAppList)
         }
     }
 
@@ -121,7 +134,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             if (settingsManager.rememberLastFocus) {
                 settingsManager.lastFocusedPackage = appInfo.packageName
             }
-            updateRecentApps(_installedApps.value)
+            updateRecentApps(_visibleApps.value)
         }
         return success
     }
@@ -138,24 +151,29 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         } else {
             settingsManager.addFavorite(appInfo.packageName)
         }
-        updateFavorites(_installedApps.value)
+        updateFavorites(_visibleApps.value)
     }
 
     fun moveFavoriteLeft(appInfo: AppInfo): Int {
         val newIndex = settingsManager.moveFavoriteLeft(appInfo.packageName)
-        updateFavorites(_installedApps.value)
+        updateFavorites(_visibleApps.value)
         return newIndex
     }
 
     fun moveFavoriteRight(appInfo: AppInfo): Int {
         val newIndex = settingsManager.moveFavoriteRight(appInfo.packageName)
-        updateFavorites(_installedApps.value)
+        updateFavorites(_visibleApps.value)
         return newIndex
     }
 
     fun swapFavorites(idx1: Int, idx2: Int) {
         settingsManager.swapFavorites(idx1, idx2)
-        updateFavorites(_installedApps.value)
+        updateFavorites(_visibleApps.value)
+    }
+
+    fun toggleAppVisibility(packageName: String) {
+        settingsManager.toggleAppVisibility(packageName)
+        loadApps()
     }
 
     fun setSearchQuery(query: String) {
