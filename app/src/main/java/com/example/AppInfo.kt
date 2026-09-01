@@ -7,5 +7,8 @@ data class AppInfo(
     val packageName: String,
     val name: String,
     val icon: Drawable,
-    val launchIntent: Intent?
+    val banner: Drawable? = null,
+    val launchIntent: Intent?,
+    val isLeanback: Boolean = false,
+    val category: String = "App"
 )
