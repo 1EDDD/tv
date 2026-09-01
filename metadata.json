@@ -1,0 +1,6 @@
+{
+  "name": "TV Launcher",
+  "description": "A cinematic Android TV launcher",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
